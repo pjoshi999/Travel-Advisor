@@ -68,6 +68,7 @@ function App() {
           placeCoordinates={placeCoordinates}
           airportQuery={airportQuery}
           date={date}
+          setDate={setDate}
         />
       ),
     },

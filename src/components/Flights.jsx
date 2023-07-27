@@ -81,7 +81,8 @@ const Flights = ({ date, range, setRange }) => {
   // console.log(flightsURL);
 
   return (
-    <div className="border border-black mx-96 my-32 bg-black text-white flex flex-col h-64 scale-150">
+    <div className="border border-black mx-96 my-32 bg-black text-white flex flex-col h-72 scale-150">
+      <h1 className="text-center pt-2 uppercase">Please Enter Departure Date from top left corner</h1>
       <div className="flex justify-around">
         <div className="border border-black m-5 px-3 py-2 w-72 bg-white text-black">
           <h1>From:</h1>
