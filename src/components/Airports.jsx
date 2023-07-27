@@ -1,24 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Maps from "./Maps";
 import Shimmer from "./Shimmer";
 
-const Body = ({ placeCoordinates, range, setRange }) => {
-  const [places, setPlaces] = useState([]);
+const Airports = ({ placeCoordinates, airportQuery, range, setRange }) => {
+  const [airports, setAirports] = useState([]);
   const coordinates = [];
 
   useEffect(() => {
-    // Fetching Attractions Data
-    getAttractions();
-  }, [placeCoordinates]);
+    // Fetching Airports Data
+    getAirportData();
+  }, [placeCoordinates, airportQuery]);
 
-  const getAttractions = async () => {
-    const url = `https://travel-advisor.p.rapidapi.com/attractions/list-in-boundary?tr_longitude=${
-      placeCoordinates.longitude + 0.01
-    }&tr_latitude=${placeCoordinates.latitude + 0.01}&bl_longitude=${
-      placeCoordinates.longitude - 0.01
-    }&bl_latitude=${
-      placeCoordinates.latitude - 0.01
-    }&currency=USD&lunit=km&lang=en_US`;
+  const getAirportData = async () => {
+    const url = `https://travel-advisor.p.rapidapi.com/airports/search?query=${airportQuery}&locale=en_US`;
+
     const options = {
       method: "GET",
       headers: {
@@ -27,9 +22,13 @@ const Body = ({ placeCoordinates, range, setRange }) => {
       },
     };
 
-    const data = await fetch(url, options);
-    const json = await data.json();
-    setPlaces(json?.data);
+    try {
+      const data = await fetch(url, options);
+      const json = await data.json();
+      setAirports(json);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const getRangeValue = () => {
@@ -41,7 +40,7 @@ const Body = ({ placeCoordinates, range, setRange }) => {
     rangeInput.addEventListener("input", getValue);
   };
 
-  return !places || places.length === 0 ? (
+  return !airports || airports.length === 0 ? (
     <Shimmer />
   ) : (
     <div className="flex pl-3">
@@ -57,33 +56,30 @@ const Body = ({ placeCoordinates, range, setRange }) => {
           max="18"
           onChange={() => getRangeValue()}
         />
-        {/* Attractions */}
+
+        {/* Airports */}
         <div className="overflow-y-scroll h-[87vh]">
-          {places?.map((place) => (
+          {airports?.map((airport) => (
             <>
-              <div className="flex py-5" key={place.location_id}>
-                <img
-                  src={place?.photo?.images?.medium?.url}
-                  alt=""
-                  className="w-52 h-40"
-                />
+              <div className="flex py-5" key={airport.location_id}>
+                <img src="/img/airport.png" alt="" className="w-52 h-40" />
                 <div className="px-2">
                   <h1 className="text-xl font-bold">
                     {coordinates.push({
-                      lat: place.latitude,
-                      lng: place.longitude,
+                      lat: airport.latitude,
+                      lng: airport.longitude,
                     })}
-                    . {place?.name}
+                    . {airport?.display_name}
                   </h1>
-                  <span>{place?.rating}⭐</span>
-                  <span className="text-xs text-[#9c9c9c]">
-                    {place?.num_reviews}
-                  </span>
+                  <span>{airport?.display_title}</span>
                   <h1 className="text-sm text-[#696969]">
-                    {place?.subcategory ? place?.subcategory[0]?.name : ""}{" "}
+                    Code: {airport?.code}
                   </h1>
                   <h1 className="text-sm text-[#838383] font-medium">
-                    {place?.location_string}
+                    State: {airport?.state}
+                  </h1>
+                  <h1 className="text-sm text-[#838383] font-medium">
+                    Country Code: {airport?.country_code}
                   </h1>
                 </div>
               </div>
@@ -103,4 +99,4 @@ const Body = ({ placeCoordinates, range, setRange }) => {
   );
 };
 
-export default Body;
+export default Airports;

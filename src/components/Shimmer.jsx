@@ -6,8 +6,8 @@ const Shimmer = () => {
       {Array(5)
         .fill("")
         .map((index) => (
-          <>
-            <div className="flex py-5 mx-5" key={index}>
+          <div key={index + Math.random()}>
+            <div className="flex py-5 mx-5">
               <div className="w-52 h-40 bg-[#9c9c9c] text-[#9c9c9c] animate-pulse"></div>
               <div className="px-2 animate-pulse">
                 <h1 className="text-xl font-bold bg-[#9c9c9c] text-[#9c9c9c] w-52 mb-3">
@@ -16,13 +16,13 @@ const Shimmer = () => {
                 <h1 className="bg-[#9c9c9c] text-[#9c9c9c] mb-3 w-32">
                   Place Rating
                 </h1>
-                <h1 className="bg-[#9c9c9c] text-[#9c9c9c] w-24">
-                  Place Rating
+                <h1 className="bg-[#9c9c9c] text-[#9c9c9c] w-28">
+                  Place Address
                 </h1>
               </div>
             </div>
             <hr className="w-[28rem]" />
-          </>
+          </div>
         ))}
     </div>
   );

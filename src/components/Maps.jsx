@@ -1,24 +1,24 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 
-function Maps({ coordinates }) {
+function Maps({ coordinates, placeCoordinates, range }) {
   const [restaurants, setRestaurants] = useState([]);
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
-    googleMapsApiKey: "AIzaSyBa_LF6TZMcSJONPf4BEkLxZ-gvdSleVfE",
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_API,
   });
 
   const [map, setMap] = useState();
 
   const containerStyle = {
     width: "65vw",
-    height: "94vh",
+    height: "90vh",
   };
 
   const center = {
-    lat: 51.507351,
-    lng: -0.127758,
+    lat: placeCoordinates.latitude,
+    lng: placeCoordinates.longitude,
   };
 
   const onLoad = useCallback(function callback(map) {
@@ -42,39 +42,36 @@ function Maps({ coordinates }) {
     const options = {
       method: "GET",
       headers: {
-        "X-RapidAPI-Key": "2e150cfb71msh640da216dfa6fe9p1e26dfjsn82aa6cb7ff32",
+        "X-RapidAPI-Key": process.env.REACT_APP_RAPID_API,
         "X-RapidAPI-Host": "travel-advisor.p.rapidapi.com",
       },
     };
 
     const data = await fetch(url, options);
     const json = await data.json();
-    console.log(json);
     setRestaurants(json?.data);
   };
 
-  return !restaurants || restaurants.length === 0 ? (
-    <div className="w-[65vw] h-[94vh] bg-[#616161] text-[#616161] animate-pulse">
-      hello
-    </div>
+  return !isLoaded || !restaurants || restaurants.length === 0 ? (
+    <div className="w-[65vw] h-[94vh] bg-[#616161] text-[#616161] animate-pulse"></div>
   ) : (
     <GoogleMap
       mapContainerStyle={containerStyle}
       center={center}
-      defaultZoom={15}
-      zoom={15}
+      defaultZoom={14}
+      zoom={Number(range)}
       onLoad={onLoad}
       onUnmount={onUnmount}
     >
-      {coordinates?.map((coordinate) => (
-        <>
+      {coordinates?.map((coordinate, index) => (
+        <React.Fragment key={index}>
           <Marker
             position={{
               lat: Number(coordinate?.lat),
               lng: Number(coordinate?.lng),
             }}
           />
-        </>
+        </React.Fragment>
       ))}
     </GoogleMap>
   );

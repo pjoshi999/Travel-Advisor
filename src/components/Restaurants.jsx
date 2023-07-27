@@ -1,24 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Maps from "./Maps";
 import Shimmer from "./Shimmer";
 
-const Body = ({ placeCoordinates, range, setRange }) => {
-  const [places, setPlaces] = useState([]);
+const Restaurants = ({ placeCoordinates, range, setRange }) => {
+  const [restaurants, setRestaurants] = useState([]);
   const coordinates = [];
 
   useEffect(() => {
-    // Fetching Attractions Data
-    getAttractions();
+    // Fetching Restaurants Data
+    getRestaurantData();
   }, [placeCoordinates]);
 
-  const getAttractions = async () => {
-    const url = `https://travel-advisor.p.rapidapi.com/attractions/list-in-boundary?tr_longitude=${
-      placeCoordinates.longitude + 0.01
+  const getRestaurantData = async () => {
+    const url = `https://travel-advisor.p.rapidapi.com/restaurants/list-in-boundary?bl_latitude=${
+      placeCoordinates.latitude - 0.01
     }&tr_latitude=${placeCoordinates.latitude + 0.01}&bl_longitude=${
       placeCoordinates.longitude - 0.01
-    }&bl_latitude=${
-      placeCoordinates.latitude - 0.01
-    }&currency=USD&lunit=km&lang=en_US`;
+    }&tr_longitude=${
+      placeCoordinates.longitude + 0.01
+    }&restaurant_tagcategory_standalone=10591&restaurant_tagcategory=10591&limit=30&currency=USD&open_now=false&lunit=km&lang=en_US`;
+
     const options = {
       method: "GET",
       headers: {
@@ -27,9 +28,13 @@ const Body = ({ placeCoordinates, range, setRange }) => {
       },
     };
 
-    const data = await fetch(url, options);
-    const json = await data.json();
-    setPlaces(json?.data);
+    try {
+      const data = await fetch(url, options);
+      const json = await data.json();
+      setRestaurants(json?.data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const getRangeValue = () => {
@@ -41,7 +46,7 @@ const Body = ({ placeCoordinates, range, setRange }) => {
     rangeInput.addEventListener("input", getValue);
   };
 
-  return !places || places.length === 0 ? (
+  return !restaurants || restaurants.length === 0 ? (
     <Shimmer />
   ) : (
     <div className="flex pl-3">
@@ -57,33 +62,38 @@ const Body = ({ placeCoordinates, range, setRange }) => {
           max="18"
           onChange={() => getRangeValue()}
         />
-        {/* Attractions */}
+        {/* Restaurants */}
         <div className="overflow-y-scroll h-[87vh]">
-          {places?.map((place) => (
+          {restaurants?.map((restaurant) => (
             <>
-              <div className="flex py-5" key={place.location_id}>
+              <div className="flex py-5" key={restaurant.location_id}>
                 <img
-                  src={place?.photo?.images?.medium?.url}
+                  src={restaurant?.photo?.images?.medium?.url}
                   alt=""
                   className="w-52 h-40"
                 />
                 <div className="px-2">
                   <h1 className="text-xl font-bold">
                     {coordinates.push({
-                      lat: place.latitude,
-                      lng: place.longitude,
+                      lat: restaurant.latitude,
+                      lng: restaurant.longitude,
                     })}
-                    . {place?.name}
+                    . {restaurant?.name}
                   </h1>
-                  <span>{place?.rating}⭐</span>
+                  <span>{restaurant?.rating}⭐</span>
                   <span className="text-xs text-[#9c9c9c]">
-                    {place?.num_reviews}
+                    {restaurant?.num_reviews}
                   </span>
                   <h1 className="text-sm text-[#696969]">
-                    {place?.subcategory ? place?.subcategory[0]?.name : ""}{" "}
+                    {restaurant?.cuisine?.map((item, index) => (
+                      <span key={index}>{item?.name}, </span>
+                    ))}
                   </h1>
                   <h1 className="text-sm text-[#838383] font-medium">
-                    {place?.location_string}
+                    {restaurant?.location_string}
+                  </h1>
+                  <h1 className="text-sm text-[#838383] font-medium">
+                    {restaurant?.price}
                   </h1>
                 </div>
               </div>
@@ -103,4 +113,4 @@ const Body = ({ placeCoordinates, range, setRange }) => {
   );
 };
 
-export default Body;
+export default Restaurants;
